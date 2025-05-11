@@ -9,19 +9,17 @@ import { format, parseISO, subMonths } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Search as SearchIcon, Filter } from "lucide-react";
+import { CalendarIcon, Search as SearchIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Workout, WorkoutType } from "@/types/workout";
+import { DateRange } from "react-day-picker";
 
 const Search: React.FC = () => {
   const { workouts, searchWorkouts } = useWorkout();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredWorkouts, setFilteredWorkouts] = useState<Workout[]>(workouts);
   const [exerciseTypeFilter, setExerciseTypeFilter] = useState<WorkoutType | "All">("All");
-  const [dateRange, setDateRange] = useState<{
-    from: Date | undefined;
-    to: Date | undefined;
-  }>({
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subMonths(new Date(), 1),
     to: new Date(),
   });
@@ -36,8 +34,8 @@ const Search: React.FC = () => {
       );
     }
     
-    // Apply date range filter
-    if (dateRange.from || dateRange.to) {
+    // Apply date range filter - Added null checks to prevent runtime errors
+    if (dateRange && (dateRange.from || dateRange.to)) {
       results = results.filter(workout => {
         const workoutDate = new Date(workout.date).getTime();
         
@@ -214,7 +212,7 @@ const Search: React.FC = () => {
                           ) : 'durationMinutes' in exercise ? (
                             <span>
                               {exercise.durationMinutes} min
-                              {exercise.distance ? ` • ${exercise.distance} miles` : ''}
+                              {exercise.exerciseType === 'Cardio' && 'distance' in exercise && exercise.distance ? ` • ${exercise.distance} miles` : ''}
                             </span>
                           ) : null}
                         </div>
