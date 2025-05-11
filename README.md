@@ -16,7 +16,7 @@ I'm creating this app to:
 
 You can contribute or customize this project in several ways:
 
-1. **Using Lovable (Recommended for beginners like me!)**
+1. **Using Lovable (Recommended for beginners who has no experience in webapp development before!)**
    - Visit the [Lovable Project Dashboard](https://lovable.dev/projects/4c5d26c2-c076-43a3-8e87-98917b45c550)
    - Make changes through simple prompts
    - Changes auto-commit to the repository
