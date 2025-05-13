@@ -1,155 +1,102 @@
 
-import React, { useState } from "react";
-import { useWorkout } from "@/context/WorkoutContext";
-import { format, parseISO } from "date-fns";
+import React, { useState, useEffect } from 'react';
+import { useWorkout } from '../context/WorkoutContext';
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import WorkoutCard from '../components/WorkoutCard';
 
 const CalendarView: React.FC = () => {
   const { workouts } = useWorkout();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
   
-  // Get workouts for selected date
-  const selectedDateWorkouts = workouts.filter(
-    (workout) => selectedDate && workout.date === format(selectedDate, "yyyy-MM-dd")
-  );
+  // Find workouts for the selected date
+  useEffect(() => {
+    if (selectedDate) {
+      const dateString = selectedDate.toISOString().split('T')[0];
+      const workout = workouts.find(w => w.date === dateString);
+      setSelectedWorkout(workout || null);
+    } else {
+      setSelectedWorkout(null);
+    }
+  }, [selectedDate, workouts]);
   
-  // Get dates that have workouts
-  const workoutDates = workouts.map((workout) => new Date(workout.date));
-  
-  // Custom day content to show indicators for workout days
-  const DayContent = (day: Date, modifiers: { selected?: boolean; disabled?: boolean; today?: boolean }) => {
-    const date = format(day, "yyyy-MM-dd");
-    const hasWorkout = workouts.some((w) => w.date === date);
-    
-    return (
-      <div
-        className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-md p-0",
-          hasWorkout && !modifiers.selected && "border-2 border-primary/50",
-          modifiers.selected && "bg-primary text-primary-foreground font-semibold"
-        )}
-      >
-        <time dateTime={date}>{format(day, "d")}</time>
-        {hasWorkout && (
-          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-primary" />
-        )}
-      </div>
-    );
+  // Function to determine days with workouts for calendar highlighting
+  const getWorkoutDates = () => {
+    return workouts.map(workout => {
+      const date = new Date(workout.date);
+      return date;
+    });
   };
   
-  return (
-    <div className="space-y-6 pb-20">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Workout Calendar</h1>
-        <p className="text-muted-foreground">Track your workouts through time.</p>
-      </div>
+  const workoutDates = getWorkoutDates();
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Calendar */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Calendar</CardTitle>
-          </CardHeader>
-          <CardContent>
+  // Handle workout deletion and update the selected workout accordingly
+  const handleWorkoutDeleted = () => {
+    if (selectedDate) {
+      const dateString = selectedDate.toISOString().split('T')[0];
+      const workout = workouts.find(w => w.date === dateString);
+      setSelectedWorkout(workout || null);
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-4 max-w-4xl">
+      <h1 className="text-2xl font-bold mb-6">Calendar</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
-              className="w-full"
-              components={{
-                DayContent: ({ date, activeModifiers }) =>
-                  DayContent(date, {
-                    selected: Boolean(activeModifiers.selected),
-                    disabled: Boolean(activeModifiers.disabled),
-                    today: Boolean(activeModifiers.today),
-                  }),
+              className="rounded-md"
+              modifiers={{
+                workout: workoutDates
+              }}
+              modifiersStyles={{
+                workout: {
+                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                  fontWeight: 'bold'
+                }
               }}
             />
-          </CardContent>
-        </Card>
-
-        {/* Selected Day Workouts */}
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {selectedDate
-                ? format(selectedDate, "EEEE, MMMM d, yyyy")
-                : "Select a Date"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {selectedDateWorkouts.length > 0 ? (
-              <ScrollArea className="h-[400px] pr-4">
-                <div className="space-y-4">
-                  {selectedDateWorkouts.map((workout) => (
-                    <div key={workout.id} className="p-4 border rounded-lg">
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {Array.from(
-                          new Set(workout.exercises.map((e) => e.exerciseType))
-                        ).map((type, idx) => (
-                          <Badge
-                            key={idx}
-                            variant="outline"
-                            className={cn({
-                              "bg-blue-50 text-blue-700": type === "Strength",
-                              "bg-green-50 text-green-700": type === "Cardio",
-                              "bg-purple-50 text-purple-700": type === "Yoga",
-                              "bg-orange-50 text-orange-700": type === "HIIT",
-                              "bg-gray-50 text-gray-700": type === "Stretching" || type === "Other",
-                            })}
-                          >
-                            {type}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      <h3 className="font-medium mb-2">Exercises:</h3>
-
-                      <div className="space-y-2">
-                        {workout.exercises.map((exercise, idx) => (
-                          <div key={idx} className="text-sm">
-                            <p className="font-medium">{exercise.name}</p>
-                            {'sets' in exercise ? (
-                              <p>
-                                {exercise.sets} sets x {exercise.reps} reps
-                                {exercise.weight ? ` @ ${exercise.weight} lbs` : ""}
-                              </p>
-                            ) : 'durationMinutes' in exercise ? (
-                              <p>
-                                Duration: {exercise.durationMinutes} minutes
-                                {exercise.exerciseType === 'Cardio' && 'distance' in exercise && exercise.distance ? ` • Distance: ${exercise.distance} miles` : ''}
-                              </p>
-                            ) : null}
-                            {exercise.notes && (
-                              <p className="text-muted-foreground italic">
-                                "{exercise.notes}"
-                              </p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            ) : selectedDate ? (
-              <div className="text-center py-10">
-                <p className="text-muted-foreground mb-2">No workouts recorded</p>
-                <p>💪 Rest day or missing entry? 💪</p>
-              </div>
-            ) : (
-              <div className="text-center py-10">
-                <p className="text-muted-foreground">
-                  Select a date to view workouts
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          </div>
+          
+          <div className="mt-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              Highlighted dates indicate workout days.
+              <br />
+              Click on a date to view workout details.
+            </p>
+          </div>
+        </div>
+        
+        <div>
+          <h2 className="text-xl font-semibold mb-4">
+            {selectedDate ? (
+              <span>
+                {selectedDate.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </span>
+            ) : 'Select a date'}
+          </h2>
+          
+          {selectedWorkout ? (
+            <WorkoutCard 
+              workout={selectedWorkout} 
+              onDelete={handleWorkoutDeleted}
+            />
+          ) : (
+            <div className="bg-muted/30 p-6 rounded-lg text-center">
+              <p>No workout recorded for this date.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
