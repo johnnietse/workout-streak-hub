@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Workout, WorkoutSummary, PersonalRecord, Exercise } from '../types/workout';
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 // Initial data
 const initialWorkouts: Workout[] = [
@@ -225,28 +226,19 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
     
     setWorkouts(prev => [...prev, newWorkout]);
-    toast({
-      title: "Success",
-      description: "Workout added successfully!"
-    });
+    toast.success('Workout added successfully!');
   };
 
   const updateWorkout = (workout: Workout) => {
     setWorkouts(prev => 
       prev.map(w => w.id === workout.id ? workout : w)
     );
-    toast({
-      title: "Success",
-      description: "Workout updated!"
-    });
+    toast.success('Workout updated!');
   };
 
   const deleteWorkout = (id: string) => {
     setWorkouts(prev => prev.filter(w => w.id !== id));
-    toast({
-      title: "Success",
-      description: "Workout deleted!"
-    });
+    toast.success('Workout deleted!');
   };
 
   const getWorkout = (id: string) => {
