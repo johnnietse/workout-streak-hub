@@ -62,7 +62,10 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({ workout, onDelete }) => {
                   {exercise.distance && ` • ${exercise.distance} miles`}
                 </p>
               )}
-              {['Yoga', 'HIIT', 'Stretching', 'Other'].includes(exercise.exerciseType) && (
+              {(exercise.exerciseType === 'Yoga' || 
+                exercise.exerciseType === 'HIIT' || 
+                exercise.exerciseType === 'Stretching' || 
+                exercise.exerciseType === 'Other') && (
                 <p className="text-sm text-muted-foreground">
                   {exercise.durationMinutes} mins • {exercise.exerciseType}
                 </p>
