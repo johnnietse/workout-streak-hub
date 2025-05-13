@@ -103,4 +103,33 @@
   .streak-badge {
     @apply inline-flex items-center justify-center rounded-full text-sm font-semibold;
   }
+
+  .card-gradient {
+    @apply bg-gradient-to-br from-card to-accent/30 backdrop-blur-sm;
+  }
+
+  .glass-effect {
+    @apply bg-white/70 backdrop-blur-md border border-white/50;
+  }
+
+  .animate-fade-in {
+    @apply opacity-0 animate-[fadeIn_0.5s_ease-out_forwards];
+  }
+
+  .animate-slide-in {
+    @apply transform -translate-y-4 opacity-0 animate-[slideIn_0.4s_ease-out_forwards];
+  }
+
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 }
