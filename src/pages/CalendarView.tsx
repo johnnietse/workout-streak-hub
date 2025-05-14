@@ -96,32 +96,37 @@ const CalendarView: React.FC = () => {
                 <h3 className="font-medium">{currentMonth}</h3>
               </div>
             </div>
-            <CardContent className="p-4">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className={cn("rounded-md p-3 pointer-events-auto")}
-                modifiers={{
-                  workout: workoutDates
-                }}
-                modifiersStyles={{
-                  workout: {
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    fontWeight: 'bold'
-                  }
-                }}
-                classNames={{
-                  day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                  day_today: "bg-accent text-accent-foreground",
-                  day: cn(
-                    "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
-                  ),
-                  day_disabled: "text-muted-foreground opacity-50",
-                  day_outside: "text-muted-foreground opacity-50",
-                  day_hidden: "invisible",
-                }}
-              />
+            <CardContent className="p-0">
+              <div className="p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  className={cn("rounded-md")}
+                  modifiers={{
+                    workout: workoutDates
+                  }}
+                  modifiersStyles={{
+                    workout: {
+                      backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                      fontWeight: 'bold'
+                    }
+                  }}
+                  classNames={{
+                    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                    day_today: "bg-accent text-accent-foreground",
+                    day: cn(
+                      "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
+                    ),
+                    day_disabled: "text-muted-foreground opacity-50",
+                    day_outside: "text-muted-foreground opacity-50",
+                    day_hidden: "invisible",
+                    cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                    table: "w-full border-collapse space-y-1 pointer-events-auto",
+                    tbody: "pointer-events-auto",
+                  }}
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
