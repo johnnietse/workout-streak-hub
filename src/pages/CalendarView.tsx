@@ -101,7 +101,7 @@ const CalendarView: React.FC = () => {
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                className="rounded-md p-3"
+                className={cn("rounded-md p-3 pointer-events-auto")}
                 modifiers={{
                   workout: workoutDates
                 }}
