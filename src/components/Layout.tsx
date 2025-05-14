@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Calendar, ChartBar, Plus, Search, Award } from "lucide-react";
+import { Calendar, ChartBar, Plus, ArrowRight, Search, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -15,17 +15,16 @@ interface NavItemProps {
 const NavItem: React.FC<NavItemProps> = ({ to, icon, label, active }) => {
   return (
     <Link to={to}>
-      <div
+      <Button
+        variant="ghost"
         className={cn(
-          "flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium",
-          active 
-            ? "bg-primary/10 text-primary" 
-            : "text-gray-600 hover:bg-gray-100"
+          "w-full justify-start gap-3 mb-1",
+          active ? "bg-accent text-accent-foreground font-medium" : "hover:bg-accent/50"
         )}
       >
         {icon}
-        <span>{label}</span>
-      </div>
+        {label}
+      </Button>
     </Link>
   );
 };
@@ -43,46 +42,65 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-56 border-r bg-white h-screen sticky top-0 flex flex-col">
-        <div className="p-4">
-          <div className="font-bold text-xl mb-8 flex items-center space-x-2 text-primary">
-            <span className="text-xl">🏋️</span>
-            <span>FitTrack</span>
-          </div>
+    <div className="min-h-screen flex flex-col lg:flex-row bg-background">
+      {/* Mobile header */}
+      <div className="lg:hidden bg-white shadow-sm p-4 flex justify-between items-center">
+        <div className="font-bold text-xl text-primary">FitTrack</div>
+        <Button variant="outline" size="icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
+          </svg>
+        </Button>
+      </div>
 
-          <nav className="space-y-1 flex-1">
-            <NavItem
-              to="/"
-              icon={<ChartBar className="w-4 h-4" />}
-              label="Dashboard"
-              active={currentPath === "/"}
-            />
-            <NavItem
-              to="/calendar"
-              icon={<Calendar className="w-4 h-4" />}
-              label="Calendar"
-              active={currentPath === "/calendar"}
-            />
-            <NavItem
-              to="/search"
-              icon={<Search className="w-4 h-4" />}
-              label="Search"
-              active={currentPath === "/search"}
-            />
-            <NavItem
-              to="/achievements"
-              icon={<Award className="w-4 h-4" />}
-              label="Achievements"
-              active={currentPath === "/achievements"}
-            />
-          </nav>
+      {/* Sidebar */}
+      <aside className="hidden lg:flex lg:w-64 border-r shrink-0 flex-col p-4 h-screen">
+        <div className="font-bold text-2xl mb-8 flex items-center space-x-2 text-primary">
+          <span className="text-3xl">🏋️</span>
+          <span>FitTrack</span>
         </div>
 
-        <div className="mt-auto p-4">
+        <nav className="space-y-1 flex-1">
+          <NavItem
+            to="/"
+            icon={<ChartBar className="w-5 h-5" />}
+            label="Dashboard"
+            active={currentPath === "/"}
+          />
+          <NavItem
+            to="/calendar"
+            icon={<Calendar className="w-5 h-5" />}
+            label="Calendar"
+            active={currentPath === "/calendar"}
+          />
+          <NavItem
+            to="/search"
+            icon={<Search className="w-5 h-5" />}
+            label="Search"
+            active={currentPath === "/search"}
+          />
+          <NavItem
+            to="/achievements"
+            icon={<Award className="w-5 h-5" />}
+            label="Achievements"
+            active={currentPath === "/achievements"}
+          />
+        </nav>
+
+        <div className="mt-auto">
           <Link to="/add-workout">
-            <Button className="w-full gap-2 bg-primary">
+            <Button className="w-full gap-2">
               <Plus className="w-4 h-4" />
               Add Workout
             </Button>
@@ -90,18 +108,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </aside>
 
-      {/* Mobile navigation - hidden on desktop */}
+      {/* Mobile navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-2 z-10">
         <Link to="/" className="flex flex-col items-center px-3 py-1">
           <ChartBar className={cn("w-5 h-5", currentPath === "/" ? "text-primary" : "text-gray-500")} />
-          <span className={cn("text-xs mt-1", currentPath === "/" ? "text-primary" : "text-gray-500")}>Dashboard</span>
+          <span className={cn("text-xs mt-1", currentPath === "/" ? "text-primary" : "text-gray-500")}>Home</span>
         </Link>
         <Link to="/calendar" className="flex flex-col items-center px-3 py-1">
           <Calendar className={cn("w-5 h-5", currentPath === "/calendar" ? "text-primary" : "text-gray-500")} />
           <span className={cn("text-xs mt-1", currentPath === "/calendar" ? "text-primary" : "text-gray-500")}>Calendar</span>
         </Link>
         <Link to="/add-workout" className="flex flex-col items-center px-3 py-1">
-          <div className="bg-primary rounded-full p-2 -mt-6">
+          <div className="bg-primary rounded-full p-2 -mt-8">
             <Plus className="w-5 h-5 text-white" />
           </div>
           <span className="text-xs mt-1">Add</span>
@@ -117,7 +135,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 p-6 pb-20 lg:pb-8">{children}</main>
+      <main className="flex-1 p-4 lg:p-8 overflow-auto pb-16 lg:pb-8">{children}</main>
     </div>
   );
 };

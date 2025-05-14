@@ -14,7 +14,7 @@ import { format } from "date-fns";
 import { CalendarIcon, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Exercise, WorkoutType } from "@/types/workout";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/use-toast";
 
 const AddWorkout: React.FC = () => {
   const navigate = useNavigate();
@@ -63,14 +63,22 @@ const AddWorkout: React.FC = () => {
     e.preventDefault();
     
     if (exercises.length === 0) {
-      toast.error("Please add at least one exercise");
+      toast({
+        title: "Error",
+        description: "Please add at least one exercise",
+        variant: "destructive"
+      });
       return;
     }
     
     // Validate exercises
     const invalidExercises = exercises.filter(ex => !ex.name);
     if (invalidExercises.length > 0) {
-      toast.error("Please enter a name for all exercises");
+      toast({
+        title: "Error",
+        description: "Please enter a name for all exercises",
+        variant: "destructive"
+      });
       return;
     }
     
