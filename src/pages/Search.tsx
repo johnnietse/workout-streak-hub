@@ -3,12 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useWorkout } from '../context/WorkoutContext';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import WorkoutCard from '../components/WorkoutCard';
-import { Search as SearchIcon, Calendar as CalendarIcon, Tag, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AnimatePresence, motion } from 'framer-motion';
+import { Calendar, ChevronDown, Search as SearchIcon } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from 'date-fns';
 
 const Search: React.FC = () => {
   const { searchWorkouts, getWorkoutsByDateRange, getWorkoutsByType } = useWorkout();
@@ -19,7 +18,7 @@ const Search: React.FC = () => {
   const [endDate, setEndDate] = useState<string>('');
   const [exerciseType, setExerciseType] = useState<string>('');
   const [results, setResults] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
   
   // Set default dates when search type changes to date
   useEffect(() => {
@@ -36,29 +35,24 @@ const Search: React.FC = () => {
   
   // Handle search
   const handleSearch = () => {
-    setIsSearching(true);
-    
-    setTimeout(() => {
-      if (searchType === 'keyword') {
-        if (searchQuery.trim()) {
-          const searchResults = searchWorkouts(searchQuery);
-          setResults(searchResults || []);
-        } else {
-          setResults([]);
-        }
-      } else if (searchType === 'date') {
-        if (startDate && endDate) {
-          const dateResults = getWorkoutsByDateRange(startDate, endDate);
-          setResults(dateResults || []);
-        }
-      } else if (searchType === 'type') {
-        if (exerciseType) {
-          const typeResults = getWorkoutsByType(exerciseType);
-          setResults(typeResults || []);
-        }
+    if (searchType === 'keyword') {
+      if (searchQuery.trim()) {
+        const searchResults = searchWorkouts(searchQuery);
+        setResults(searchResults || []);
+      } else {
+        setResults([]);
       }
-      setIsSearching(false);
-    }, 500); // Simulate a search delay for better UX
+    } else if (searchType === 'date') {
+      if (startDate && endDate) {
+        const dateResults = getWorkoutsByDateRange(startDate, endDate);
+        setResults(dateResults || []);
+      }
+    } else if (searchType === 'type') {
+      if (exerciseType) {
+        const typeResults = getWorkoutsByType(exerciseType);
+        setResults(typeResults || []);
+      }
+    }
   };
   
   // Clear results when search type changes
@@ -72,165 +66,149 @@ const Search: React.FC = () => {
     handleSearch();
   };
 
+  // Calculate date range display
+  const dateRangeText = startDate && endDate ? 
+    `${format(new Date(startDate), 'MMM dd')} - ${format(new Date(endDate), 'MMM dd')}` : 
+    'Select date range';
+
   return (
-    <div className="container mx-auto p-4 max-w-4xl animate-fade-in">
-      <h1 className="text-3xl font-bold mb-2">Search Workouts</h1>
-      <p className="text-muted-foreground mb-6">Find your past workout sessions</p>
+    <div className="max-w-6xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Search Workouts</h1>
+        <p className="text-gray-500 text-sm">Find and filter your past workouts.</p>
+      </div>
       
-      <Card className="mb-6 overflow-hidden border-0 shadow-md">
-        <CardHeader className="bg-primary/5 border-b pb-4">
-          <CardTitle className="text-xl">Search Filters</CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="mb-6">
-            <div className="flex flex-wrap gap-2 mb-6">
-              <Button
-                variant={searchType === 'keyword' ? 'default' : 'outline'}
-                onClick={() => setSearchType('keyword')}
-                className="gap-2 transition-all duration-300"
-                size="sm"
-              >
-                <SearchIcon className="w-4 h-4" />
-                By Keyword
-              </Button>
-              <Button
-                variant={searchType === 'date' ? 'default' : 'outline'}
-                onClick={() => setSearchType('date')}
-                className="gap-2 transition-all duration-300"
-                size="sm"
-              >
-                <CalendarIcon className="w-4 h-4" />
-                By Date Range
-              </Button>
-              <Button
-                variant={searchType === 'type' ? 'default' : 'outline'}
-                onClick={() => setSearchType('type')}
-                className="gap-2 transition-all duration-300"
-                size="sm"
-              >
-                <Tag className="w-4 h-4" />
-                By Exercise Type
-              </Button>
-            </div>
-            
-            <div className="space-y-4">
-              {searchType === 'keyword' && (
-                <div className="animate-slide-in">
-                  <Label htmlFor="keyword-search" className="text-sm font-medium mb-1.5 block">Search for exercises, notes, or dates</Label>
-                  <div className="relative">
-                    <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      id="keyword-search"
-                      placeholder="E.g. bench press, morning run, etc."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-              )}
-              
-              {searchType === 'date' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-slide-in">
-                  <div>
-                    <Label htmlFor="start-date" className="text-sm font-medium mb-1.5 block">Start Date</Label>
-                    <Input
-                      id="start-date"
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="end-date" className="text-sm font-medium mb-1.5 block">End Date</Label>
-                    <Input
-                      id="end-date"
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-              
-              {searchType === 'type' && (
-                <div className="animate-slide-in">
-                  <Label htmlFor="exercise-type" className="text-sm font-medium mb-1.5 block">Exercise Type</Label>
-                  <Select value={exerciseType} onValueChange={setExerciseType}>
-                    <SelectTrigger id="exercise-type" className="w-full">
-                      <SelectValue placeholder="Select Exercise Type" />
-                    </SelectTrigger>
-                    <SelectContent className="w-full">
-                      <SelectItem value="Strength">Strength Training</SelectItem>
-                      <SelectItem value="Cardio">Cardio</SelectItem>
-                      <SelectItem value="Yoga">Yoga</SelectItem>
-                      <SelectItem value="HIIT">HIIT</SelectItem>
-                      <SelectItem value="Stretching">Stretching</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-            
-            <div className="mt-6">
-              <Button 
-                onClick={handleSearch}
-                disabled={isSearching}
-                className="w-full sm:w-auto"
-              >
-                {isSearching ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Searching...
-                  </>
-                ) : (
-                  <>
-                    <SearchIcon className="mr-2 h-4 w-4" />
-                    Search
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Search Results</h2>
-          {results.length > 0 && (
-            <span className="text-sm text-muted-foreground">{results.length} workout{results.length !== 1 ? 's' : ''} found</span>
-          )}
+      <div className="bg-white rounded-lg shadow-sm mb-6">
+        <div className="p-4 border-b">
+          <h2 className="text-lg font-medium">Search & Filter</h2>
         </div>
         
-        {isSearching ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
+        <div className="p-4 grid grid-cols-12 gap-4">
+          <div className="col-span-12 md:col-span-6 relative">
+            <div className="relative">
+              <Input
+                placeholder="Search by exercise name, notes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                <SearchIcon className="w-4 h-4 text-gray-400" />
+              </div>
+            </div>
           </div>
-        ) : results.length > 0 ? (
+          
+          <div className="col-span-12 md:col-span-3">
+            <Popover open={isTypeDropdownOpen} onOpenChange={setIsTypeDropdownOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  All Types
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <div className="py-1">
+                  <button 
+                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-sm"
+                    onClick={() => {
+                      setExerciseType('');
+                      setIsTypeDropdownOpen(false);
+                    }}
+                  >
+                    All Types
+                  </button>
+                  <button 
+                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-sm"
+                    onClick={() => {
+                      setExerciseType('Strength');
+                      setIsTypeDropdownOpen(false);
+                    }}
+                  >
+                    Strength
+                  </button>
+                  <button 
+                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-sm"
+                    onClick={() => {
+                      setExerciseType('Cardio');
+                      setIsTypeDropdownOpen(false);
+                    }}
+                  >
+                    Cardio
+                  </button>
+                  <button 
+                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-sm"
+                    onClick={() => {
+                      setExerciseType('Yoga');
+                      setIsTypeDropdownOpen(false);
+                    }}
+                  >
+                    Yoga
+                  </button>
+                  <button 
+                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-sm"
+                    onClick={() => {
+                      setExerciseType('HIIT');
+                      setIsTypeDropdownOpen(false);
+                    }}
+                  >
+                    HIIT
+                  </button>
+                  <button 
+                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-sm"
+                    onClick={() => {
+                      setExerciseType('Stretching');
+                      setIsTypeDropdownOpen(false);
+                    }}
+                  >
+                    Stretching
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+          
+          <div className="col-span-12 md:col-span-3">
+            <Button 
+              variant="outline" 
+              className="w-full justify-between"
+            >
+              <div className="flex items-center">
+                <Calendar className="w-4 h-4 mr-2" />
+                <span className="text-sm">{dateRangeText}</span>
+              </div>
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <div className="col-span-12">
+            <Button 
+              className="bg-blue-500 text-white"
+              onClick={handleSearch}
+            >
+              Search
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      {results.length > 0 && (
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-medium">Search Results</h2>
+            <p className="text-sm text-gray-500">{results.length} workouts</p>
+          </div>
+          
           <div className="space-y-4">
             {results.map((workout) => (
-              <div key={workout.id} className="transform transition-all duration-300 hover:translate-y-[-2px]">
-                <WorkoutCard 
-                  workout={workout}
-                  onDelete={handleWorkoutDeleted}
-                />
-              </div>
+              <WorkoutCard 
+                key={workout.id} 
+                workout={workout}
+                onDelete={handleWorkoutDeleted}
+              />
             ))}
           </div>
-        ) : (
-          <Card className="bg-muted/30 py-12 text-center border border-dashed">
-            <CardContent>
-              <div className="flex flex-col items-center justify-center text-muted-foreground">
-                <SearchIcon className="h-12 w-12 mb-3 text-muted-foreground/70" />
-                <p className="text-lg font-medium">No workouts found</p>
-                <p className="text-sm mt-1">Try adjusting your search criteria</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
