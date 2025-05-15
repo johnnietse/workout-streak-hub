@@ -39,26 +39,36 @@ const Search: React.FC = () => {
     setIsSearching(true);
     
     setTimeout(() => {
-      if (searchType === 'keyword') {
-        if (searchQuery.trim()) {
-          const searchResults = searchWorkouts(searchQuery);
-          setResults(searchResults || []);
-        } else {
-          setResults([]);
+      let searchResults: any[] = [];
+      
+      try {
+        if (searchType === 'keyword') {
+          if (searchQuery.trim()) {
+            searchResults = searchWorkouts(searchQuery) || [];
+          }
+        } else if (searchType === 'date') {
+          if (startDate && endDate) {
+            searchResults = getWorkoutsByDateRange(startDate, endDate) || [];
+          }
+        } else if (searchType === 'type') {
+          if (exerciseType) {
+            searchResults = getWorkoutsByType(exerciseType) || [];
+          }
         }
-      } else if (searchType === 'date') {
-        if (startDate && endDate) {
-          const dateResults = getWorkoutsByDateRange(startDate, endDate);
-          setResults(dateResults || []);
-        }
-      } else if (searchType === 'type') {
-        if (exerciseType) {
-          const typeResults = getWorkoutsByType(exerciseType);
-          setResults(typeResults || []);
-        }
+        
+        setResults(searchResults);
+      } catch (error) {
+        console.error("Search error:", error);
+        toast({
+          title: "Search Error",
+          description: "An error occurred while searching. Please try again.",
+          variant: "destructive"
+        });
+        setResults([]);
       }
+      
       setIsSearching(false);
-    }, 500); // Simulate a search delay for better UX
+    }, 300);
   };
   
   // Clear results when search type changes
@@ -164,7 +174,7 @@ const Search: React.FC = () => {
                     <SelectTrigger id="exercise-type" className="w-full">
                       <SelectValue placeholder="Select Exercise Type" />
                     </SelectTrigger>
-                    <SelectContent className="w-full">
+                    <SelectContent className="w-full bg-background">
                       <SelectItem value="Strength">Strength Training</SelectItem>
                       <SelectItem value="Cardio">Cardio</SelectItem>
                       <SelectItem value="Yoga">Yoga</SelectItem>

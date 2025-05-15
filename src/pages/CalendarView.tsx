@@ -31,7 +31,8 @@ const CalendarView: React.FC = () => {
   // Function to determine days with workouts for calendar highlighting
   const getWorkoutDates = () => {
     return workouts.map(workout => {
-      return new Date(workout.date);
+      const date = new Date(workout.date);
+      return date;
     });
   };
   
