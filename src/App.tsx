@@ -17,25 +17,23 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WorkoutProvider>
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <WorkoutProvider>
+        <BrowserRouter>
           <Toaster />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Layout><Dashboard /></Layout>} />
-              <Route path="/calendar" element={<Layout><CalendarView /></Layout>} />
-              <Route path="/add-workout" element={<Layout><AddWorkout /></Layout>} />
-              <Route path="/search" element={<Layout><Search /></Layout>} />
-              <Route path="/achievements" element={<Layout><Achievements /></Layout>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </WorkoutProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </React.StrictMode>
+          <Routes>
+            <Route path="/" element={<Layout><Dashboard /></Layout>} />
+            <Route path="/calendar" element={<Layout><CalendarView /></Layout>} />
+            <Route path="/add-workout" element={<Layout><AddWorkout /></Layout>} />
+            <Route path="/search" element={<Layout><Search /></Layout>} />
+            <Route path="/achievements" element={<Layout><Achievements /></Layout>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </WorkoutProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
 );
 
 export default App;

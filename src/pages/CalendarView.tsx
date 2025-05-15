@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarIcon, Check, Info } from 'lucide-react';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { cn } from '@/lib/utils';
 import { toast } from "@/components/ui/use-toast";
 
 const CalendarView: React.FC = () => {
