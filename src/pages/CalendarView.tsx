@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarIcon, Check, Info } from 'lucide-react';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 const CalendarView: React.FC = () => {
   const { workouts } = useWorkout();
@@ -54,7 +54,7 @@ const CalendarView: React.FC = () => {
   const currentMonth = selectedDate ? selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' }) : '';
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl animate-fade-in">
+    <div className="container mx-auto p-4 max-w-4xl">
       <div className="flex flex-col md:flex-row justify-between items-start mb-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Calendar</h1>

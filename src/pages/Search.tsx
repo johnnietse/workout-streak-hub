@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import WorkoutCard from '../components/WorkoutCard';
 import { Search as SearchIcon, Calendar as CalendarIcon, Tag, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 const Search: React.FC = () => {
   const { searchWorkouts, getWorkoutsByDateRange, getWorkoutsByType } = useWorkout();
@@ -87,7 +87,7 @@ const Search: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl animate-fade-in">
+    <div className="container mx-auto p-4 max-w-4xl">
       <h1 className="text-3xl font-bold mb-2">Search Workouts</h1>
       <p className="text-muted-foreground mb-6">Find your past workout sessions</p>
       
@@ -174,7 +174,7 @@ const Search: React.FC = () => {
                     <SelectTrigger id="exercise-type" className="w-full">
                       <SelectValue placeholder="Select Exercise Type" />
                     </SelectTrigger>
-                    <SelectContent position="popper" className="w-full bg-background pointer-events-auto">
+                    <SelectContent position="popper" className="w-full bg-background pointer-events-auto z-50">
                       <SelectItem value="Strength">Strength Training</SelectItem>
                       <SelectItem value="Cardio">Cardio</SelectItem>
                       <SelectItem value="Yoga">Yoga</SelectItem>

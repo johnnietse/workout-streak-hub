@@ -1,7 +1,7 @@
 
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Calendar, ChartBar, Plus, ArrowRight, Search, Award } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Calendar, ChartBar, Plus, Search, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -10,11 +10,12 @@ interface NavItemProps {
   icon: React.ReactNode;
   label: string;
   active: boolean;
+  onClick: () => void;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ to, icon, label, active }) => {
+const NavItem: React.FC<NavItemProps> = ({ to, icon, label, active, onClick }) => {
   return (
-    <Link to={to}>
+    <Link to={to} onClick={onClick}>
       <Button
         variant="ghost"
         className={cn(
@@ -35,11 +36,16 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [currentPath, setCurrentPath] = useState(location.pathname);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentPath(location.pathname);
   }, [location.pathname]);
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-background">
@@ -77,29 +83,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             icon={<ChartBar className="w-5 h-5" />}
             label="Dashboard"
             active={currentPath === "/"}
+            onClick={() => handleNavigation("/")}
           />
           <NavItem
             to="/calendar"
             icon={<Calendar className="w-5 h-5" />}
             label="Calendar"
             active={currentPath === "/calendar"}
+            onClick={() => handleNavigation("/calendar")}
           />
           <NavItem
             to="/search"
             icon={<Search className="w-5 h-5" />}
             label="Search"
             active={currentPath === "/search"}
+            onClick={() => handleNavigation("/search")}
           />
           <NavItem
             to="/achievements"
             icon={<Award className="w-5 h-5" />}
             label="Achievements"
             active={currentPath === "/achievements"}
+            onClick={() => handleNavigation("/achievements")}
           />
         </nav>
 
         <div className="mt-auto">
-          <Link to="/add-workout">
+          <Link to="/add-workout" onClick={() => handleNavigation("/add-workout")}>
             <Button className="w-full gap-2">
               <Plus className="w-4 h-4" />
               Add Workout
@@ -110,25 +120,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Mobile navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-2 z-10">
-        <Link to="/" className="flex flex-col items-center px-3 py-1">
+        <Link to="/" className="flex flex-col items-center px-3 py-1" onClick={() => handleNavigation("/")}>
           <ChartBar className={cn("w-5 h-5", currentPath === "/" ? "text-primary" : "text-gray-500")} />
           <span className={cn("text-xs mt-1", currentPath === "/" ? "text-primary" : "text-gray-500")}>Home</span>
         </Link>
-        <Link to="/calendar" className="flex flex-col items-center px-3 py-1">
+        <Link to="/calendar" className="flex flex-col items-center px-3 py-1" onClick={() => handleNavigation("/calendar")}>
           <Calendar className={cn("w-5 h-5", currentPath === "/calendar" ? "text-primary" : "text-gray-500")} />
           <span className={cn("text-xs mt-1", currentPath === "/calendar" ? "text-primary" : "text-gray-500")}>Calendar</span>
         </Link>
-        <Link to="/add-workout" className="flex flex-col items-center px-3 py-1">
+        <Link to="/add-workout" className="flex flex-col items-center px-3 py-1" onClick={() => handleNavigation("/add-workout")}>
           <div className="bg-primary rounded-full p-2 -mt-8">
             <Plus className="w-5 h-5 text-white" />
           </div>
           <span className="text-xs mt-1">Add</span>
         </Link>
-        <Link to="/search" className="flex flex-col items-center px-3 py-1">
+        <Link to="/search" className="flex flex-col items-center px-3 py-1" onClick={() => handleNavigation("/search")}>
           <Search className={cn("w-5 h-5", currentPath === "/search" ? "text-primary" : "text-gray-500")} />
           <span className={cn("text-xs mt-1", currentPath === "/search" ? "text-primary" : "text-gray-500")}>Search</span>
         </Link>
-        <Link to="/achievements" className="flex flex-col items-center px-3 py-1">
+        <Link to="/achievements" className="flex flex-col items-center px-3 py-1" onClick={() => handleNavigation("/achievements")}>
           <Award className={cn("w-5 h-5", currentPath === "/achievements" ? "text-primary" : "text-gray-500")} />
           <span className={cn("text-xs mt-1", currentPath === "/achievements" ? "text-primary" : "text-gray-500")}>Achievements</span>
         </Link>
