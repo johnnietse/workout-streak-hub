@@ -174,7 +174,7 @@ const Search: React.FC = () => {
                     <SelectTrigger id="exercise-type" className="w-full">
                       <SelectValue placeholder="Select Exercise Type" />
                     </SelectTrigger>
-                    <SelectContent className="w-full bg-background">
+                    <SelectContent position="popper" className="w-full bg-background pointer-events-auto">
                       <SelectItem value="Strength">Strength Training</SelectItem>
                       <SelectItem value="Cardio">Cardio</SelectItem>
                       <SelectItem value="Yoga">Yoga</SelectItem>
