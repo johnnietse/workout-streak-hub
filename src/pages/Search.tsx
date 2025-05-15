@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import WorkoutCard from '../components/WorkoutCard';
 import { Search as SearchIcon, Calendar as CalendarIcon, Tag, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AnimatePresence, motion } from 'framer-motion';
+import { toast } from "@/components/ui/use-toast";
 
 const Search: React.FC = () => {
   const { searchWorkouts, getWorkoutsByDateRange, getWorkoutsByType } = useWorkout();
@@ -70,6 +70,10 @@ const Search: React.FC = () => {
   const handleWorkoutDeleted = () => {
     // Re-run the search to refresh results
     handleSearch();
+    toast({
+      title: "Workout deleted",
+      description: "The workout has been successfully removed from your records."
+    });
   };
 
   return (

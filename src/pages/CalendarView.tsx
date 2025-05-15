@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarIcon, Check, Info } from 'lucide-react';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { cn } from '@/lib/utils';
+import { toast } from "@/components/ui/use-toast";
 
 const CalendarView: React.FC = () => {
   const { workouts } = useWorkout();
@@ -30,8 +31,7 @@ const CalendarView: React.FC = () => {
   // Function to determine days with workouts for calendar highlighting
   const getWorkoutDates = () => {
     return workouts.map(workout => {
-      const date = new Date(workout.date);
-      return date;
+      return new Date(workout.date);
     });
   };
   
@@ -43,6 +43,10 @@ const CalendarView: React.FC = () => {
       const dateString = selectedDate.toISOString().split('T')[0];
       const workout = workouts.find(w => w.date === dateString);
       setSelectedWorkout(workout || null);
+      toast({
+        title: "Workout deleted",
+        description: "The workout has been successfully removed."
+      });
     }
   };
   
@@ -102,7 +106,7 @@ const CalendarView: React.FC = () => {
                   mode="single"
                   selected={selectedDate}
                   onSelect={setSelectedDate}
-                  className={cn("rounded-md")}
+                  className="w-full"
                   modifiers={{
                     workout: workoutDates
                   }}
@@ -111,19 +115,6 @@ const CalendarView: React.FC = () => {
                       backgroundColor: 'rgba(59, 130, 246, 0.2)',
                       fontWeight: 'bold'
                     }
-                  }}
-                  classNames={{
-                    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                    day_today: "bg-accent text-accent-foreground",
-                    day: cn(
-                      "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
-                    ),
-                    day_disabled: "text-muted-foreground opacity-50",
-                    day_outside: "text-muted-foreground opacity-50",
-                    day_hidden: "invisible",
-                    cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                    table: "w-full border-collapse space-y-1 pointer-events-auto",
-                    tbody: "pointer-events-auto",
                   }}
                 />
               </div>
