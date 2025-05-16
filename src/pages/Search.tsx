@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useWorkout } from '../context/WorkoutContext';
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import WorkoutCard from '../components/WorkoutCard';
 import { Search as SearchIcon, Calendar as CalendarIcon, Tag, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/ui/sonner";
 
 const Search: React.FC = () => {
   const { searchWorkouts, getWorkoutsByDateRange, getWorkoutsByType } = useWorkout();
