@@ -44,6 +44,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [location.pathname]);
 
   const handleNavigation = (path: string) => {
+    if (path === currentPath) return; // Prevent re-navigation to the same page
     navigate(path);
   };
 
@@ -120,25 +121,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Mobile navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-2 z-10">
-        <Link to="/" className="flex flex-col items-center px-3 py-1" onClick={() => handleNavigation("/")}>
+        <Link to="/" className="flex flex-col items-center px-3 py-1" onClick={(e) => { e.preventDefault(); handleNavigation("/"); }}>
           <ChartBar className={cn("w-5 h-5", currentPath === "/" ? "text-primary" : "text-gray-500")} />
           <span className={cn("text-xs mt-1", currentPath === "/" ? "text-primary" : "text-gray-500")}>Home</span>
         </Link>
-        <Link to="/calendar" className="flex flex-col items-center px-3 py-1" onClick={() => handleNavigation("/calendar")}>
+        <Link to="/calendar" className="flex flex-col items-center px-3 py-1" onClick={(e) => { e.preventDefault(); handleNavigation("/calendar"); }}>
           <Calendar className={cn("w-5 h-5", currentPath === "/calendar" ? "text-primary" : "text-gray-500")} />
           <span className={cn("text-xs mt-1", currentPath === "/calendar" ? "text-primary" : "text-gray-500")}>Calendar</span>
         </Link>
-        <Link to="/add-workout" className="flex flex-col items-center px-3 py-1" onClick={() => handleNavigation("/add-workout")}>
+        <Link to="/add-workout" className="flex flex-col items-center px-3 py-1" onClick={(e) => { e.preventDefault(); handleNavigation("/add-workout"); }}>
           <div className="bg-primary rounded-full p-2 -mt-8">
             <Plus className="w-5 h-5 text-white" />
           </div>
           <span className="text-xs mt-1">Add</span>
         </Link>
-        <Link to="/search" className="flex flex-col items-center px-3 py-1" onClick={() => handleNavigation("/search")}>
+        <Link to="/search" className="flex flex-col items-center px-3 py-1" onClick={(e) => { e.preventDefault(); handleNavigation("/search"); }}>
           <Search className={cn("w-5 h-5", currentPath === "/search" ? "text-primary" : "text-gray-500")} />
           <span className={cn("text-xs mt-1", currentPath === "/search" ? "text-primary" : "text-gray-500")}>Search</span>
         </Link>
-        <Link to="/achievements" className="flex flex-col items-center px-3 py-1" onClick={() => handleNavigation("/achievements")}>
+        <Link to="/achievements" className="flex flex-col items-center px-3 py-1" onClick={(e) => { e.preventDefault(); handleNavigation("/achievements"); }}>
           <Award className={cn("w-5 h-5", currentPath === "/achievements" ? "text-primary" : "text-gray-500")} />
           <span className={cn("text-xs mt-1", currentPath === "/achievements" ? "text-primary" : "text-gray-500")}>Achievements</span>
         </Link>

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import WorkoutCard from '../components/WorkoutCard';
 import { Search as SearchIcon, Calendar as CalendarIcon, Tag, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/toast";
 
 const Search: React.FC = () => {
   const { searchWorkouts, getWorkoutsByDateRange, getWorkoutsByType } = useWorkout();
@@ -71,14 +71,74 @@ const Search: React.FC = () => {
     }, 300);
   };
   
-  // Clear results when search type changes
-  useEffect(() => {
-    setResults([]);
-  }, [searchType]);
-  
+  // Render the appropriate search form based on the selected search type
+  const renderSearchForm = () => {
+    switch (searchType) {
+      case 'keyword':
+        return (
+          <div className="space-y-4">
+            <Label htmlFor="keyword-search" className="text-sm font-medium mb-1.5 block">Search for exercises, notes, or dates</Label>
+            <div className="relative">
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                id="keyword-search"
+                placeholder="E.g. bench press, morning run, etc."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+        );
+      case 'date':
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="start-date" className="text-sm font-medium mb-1.5 block">Start Date</Label>
+              <Input
+                id="start-date"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="end-date" className="text-sm font-medium mb-1.5 block">End Date</Label>
+              <Input
+                id="end-date"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
+          </div>
+        );
+      case 'type':
+        return (
+          <div>
+            <Label htmlFor="exercise-type" className="text-sm font-medium mb-1.5 block">Exercise Type</Label>
+            <Select value={exerciseType} onValueChange={setExerciseType}>
+              <SelectTrigger id="exercise-type" className="w-full">
+                <SelectValue placeholder="Select Exercise Type" />
+              </SelectTrigger>
+              <SelectContent sideOffset={0} className="w-full bg-popover z-[100]" position="item-aligned">
+                <SelectItem value="Strength">Strength Training</SelectItem>
+                <SelectItem value="Cardio">Cardio</SelectItem>
+                <SelectItem value="Yoga">Yoga</SelectItem>
+                <SelectItem value="HIIT">HIIT</SelectItem>
+                <SelectItem value="Stretching">Stretching</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   // Handle workout deletion and refresh results
   const handleWorkoutDeleted = () => {
-    // Re-run the search to refresh results
     handleSearch();
     toast({
       title: "Workout deleted",
@@ -128,63 +188,7 @@ const Search: React.FC = () => {
             </div>
             
             <div className="space-y-4">
-              {searchType === 'keyword' && (
-                <div className="animate-slide-in">
-                  <Label htmlFor="keyword-search" className="text-sm font-medium mb-1.5 block">Search for exercises, notes, or dates</Label>
-                  <div className="relative">
-                    <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      id="keyword-search"
-                      placeholder="E.g. bench press, morning run, etc."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-              )}
-              
-              {searchType === 'date' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-slide-in">
-                  <div>
-                    <Label htmlFor="start-date" className="text-sm font-medium mb-1.5 block">Start Date</Label>
-                    <Input
-                      id="start-date"
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="end-date" className="text-sm font-medium mb-1.5 block">End Date</Label>
-                    <Input
-                      id="end-date"
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-              
-              {searchType === 'type' && (
-                <div className="animate-slide-in">
-                  <Label htmlFor="exercise-type" className="text-sm font-medium mb-1.5 block">Exercise Type</Label>
-                  <Select value={exerciseType} onValueChange={setExerciseType}>
-                    <SelectTrigger id="exercise-type" className="w-full">
-                      <SelectValue placeholder="Select Exercise Type" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" className="w-full bg-background pointer-events-auto z-50">
-                      <SelectItem value="Strength">Strength Training</SelectItem>
-                      <SelectItem value="Cardio">Cardio</SelectItem>
-                      <SelectItem value="Yoga">Yoga</SelectItem>
-                      <SelectItem value="HIIT">HIIT</SelectItem>
-                      <SelectItem value="Stretching">Stretching</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              {renderSearchForm()}
             </div>
             
             <div className="mt-6">
