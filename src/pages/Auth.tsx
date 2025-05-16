@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -8,13 +8,23 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { InfoIcon } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const [showEmailSentNotice, setShowEmailSentNotice] = useState(false);
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  
+  // If already authenticated, redirect to home
+  useEffect(() => {
+    if (user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +48,8 @@ const Auth = () => {
     setLoading(true);
     try {
       await signUp(email, password);
-      // The navigation is handled in the signUp function
+      setShowEmailSentNotice(true);
+      // We stay on the page but show a message
     } catch (error) {
       console.error('Error signing up:', error);
     } finally {
@@ -56,6 +67,18 @@ const Auth = () => {
           </h1>
           <p className="text-muted-foreground mt-2">Track your fitness journey</p>
         </div>
+
+        {showEmailSentNotice && (
+          <Alert className="bg-green-50 border-green-200 mb-6">
+            <InfoIcon className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              Registration successful! Please check your email to verify your account.
+              <p className="text-sm mt-1 text-green-600">
+                Note: In development, email verification might be disabled in Supabase settings.
+              </p>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
