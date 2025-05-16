@@ -58,8 +58,7 @@ const Search: React.FC = () => {
         setResults(searchResults);
       } catch (error) {
         console.error("Search error:", error);
-        toast({
-          title: "Search Error",
+        toast("Search Error", {
           description: "An error occurred while searching. Please try again.",
           variant: "destructive"
         });
@@ -139,8 +138,7 @@ const Search: React.FC = () => {
   // Handle workout deletion and refresh results
   const handleWorkoutDeleted = () => {
     handleSearch();
-    toast({
-      title: "Workout deleted",
+    toast("Workout deleted", {
       description: "The workout has been successfully removed from your records."
     });
   };
