@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
@@ -27,7 +26,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log("Auth state changed:", event, currentSession?.user?.email);
-        setSession(currentSession);
+        
+        // Keep track of previous state to prevent unnecessary rerenders
+        setSession(prevSession => {
+          if (prevSession?.user?.id === currentSession?.user?.id) {
+            return prevSession;
+          }
+          return currentSession;
+        });
+        
         setUser(currentSession?.user ?? null);
         
         if (event === 'SIGNED_IN') {
@@ -55,6 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string) => {
     try {
+      setIsLoading(true);
       const { error, data } = await supabase.auth.signUp({
         email,
         password,
@@ -70,21 +78,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log("Sign up response:", data);
       
       toast("Account created", {
-        description: "Please check your email to verify your account."
+        description: "For this demo app, email verification is disabled. You can sign in immediately."
       });
 
-      // No need to navigate away after signup since email confirmation is required
-      // We'll show a message on the auth page instead
+      // Automatically sign in after signup for development purposes
+      // This skips email verification flow
+      await signIn(email, password);
+      
     } catch (error: any) {
       toast("Registration failed", {
         description: error?.message || "Failed to create account. Please try again."
       });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
+      setIsLoading(true);
       const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -95,23 +108,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       console.log("Sign in success:", data.user?.email);
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (error: any) {
       toast("Login failed", {
         description: error?.message || "Invalid email or password. Please try again."
       });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
+      setIsLoading(true);
       await supabase.auth.signOut();
-      navigate('/auth');
+      navigate('/auth', { replace: true });
     } catch (error: any) {
       toast("Sign out failed", {
         description: error?.message || "Failed to sign out. Please try again."
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

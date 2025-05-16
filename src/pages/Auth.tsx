@@ -15,16 +15,15 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showEmailSentNotice, setShowEmailSentNotice] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, isLoading } = useAuth();
   const navigate = useNavigate();
   
-  // If already authenticated, redirect to home
+  // If already authenticated and not in loading state, redirect to home
   useEffect(() => {
-    if (user) {
+    if (user && !isLoading) {
       navigate('/', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, isLoading, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,14 +47,27 @@ const Auth = () => {
     setLoading(true);
     try {
       await signUp(email, password);
-      setShowEmailSentNotice(true);
-      // We stay on the page but show a message
+      // For development, we're auto-signing in after signup
     } catch (error) {
       console.error('Error signing up:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  // If already logged in, show loading
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // If already authenticated, don't render the auth page
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -68,17 +80,12 @@ const Auth = () => {
           <p className="text-muted-foreground mt-2">Track your fitness journey</p>
         </div>
 
-        {showEmailSentNotice && (
-          <Alert className="bg-green-50 border-green-200 mb-6">
-            <InfoIcon className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              Registration successful! Please check your email to verify your account.
-              <p className="text-sm mt-1 text-green-600">
-                Note: In development, email verification might be disabled in Supabase settings.
-              </p>
-            </AlertDescription>
-          </Alert>
-        )}
+        <Alert className="bg-blue-50 border-blue-200 mb-6">
+          <InfoIcon className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-800">
+            This demo app has email verification disabled. You can sign up and sign in immediately.
+          </AlertDescription>
+        </Alert>
 
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">

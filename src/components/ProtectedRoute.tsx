@@ -1,6 +1,6 @@
 
-import React, { useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -9,19 +9,9 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isLoading, session } = useAuth();
-  const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
 
-  useEffect(() => {
-    console.log("ProtectedRoute auth state:", { user: !!user, isLoading, session: !!session });
-    
-    // If we're not loading and there's no user, redirect to auth page
-    if (!isLoading && !user) {
-      console.log("No authenticated user, redirecting to /auth");
-      navigate('/auth', { replace: true });
-    }
-  }, [user, isLoading, navigate, session]);
-
+  // Show loader while checking authentication
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -33,11 +23,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // Use simple condition - if no user, redirect
+  // If not authenticated, redirect to login
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
 
+  // If authenticated, render the protected content
   return <>{children}</>;
 };
 
