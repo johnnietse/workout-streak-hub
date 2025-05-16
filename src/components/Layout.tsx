@@ -1,10 +1,9 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Calendar, ChartBar, Plus, Search, Award, LogOut } from "lucide-react";
+import { Calendar, ChartBar, Plus, Search, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/context/AuthContext";
 
 interface NavItemProps {
   to: string;
@@ -38,7 +37,6 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut, user } = useAuth();
   const [currentPath, setCurrentPath] = useState(location.pathname);
 
   useEffect(() => {
@@ -111,34 +109,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         </nav>
 
-        <div className="mt-auto space-y-2">
+        <div className="mt-auto">
           <Link to="/add-workout" onClick={() => handleNavigation("/add-workout")}>
             <Button className="w-full gap-2">
               <Plus className="w-4 h-4" />
               Add Workout
             </Button>
           </Link>
-          
-          <div className="pt-4 border-t mt-4">
-            {user && (
-              <div className="flex flex-col gap-3">
-                <div className="text-sm text-muted-foreground">
-                  Signed in as:
-                  <div className="font-medium text-foreground truncate">
-                    {user.email}
-                  </div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start gap-2" 
-                  onClick={signOut}
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
-                </Button>
-              </div>
-            )}
-          </div>
         </div>
       </aside>
 
