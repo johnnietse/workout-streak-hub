@@ -60,7 +60,6 @@ const Search: React.FC = () => {
         console.error("Search error:", error);
         toast("Search Error", {
           description: "An error occurred while searching. Please try again.",
-          variant: "destructive"
         });
         setResults([]);
       }
