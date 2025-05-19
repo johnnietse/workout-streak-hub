@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Workout, WorkoutSummary, PersonalRecord, Exercise } from '../types/workout';
 import { toast } from "@/components/ui/sonner";
@@ -241,7 +242,10 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const addWorkout = (workout: Omit<Workout, 'id'>) => {
     if (!user) {
-      toast("You must be logged in to add a workout");
+      toast({
+        title: "Error",
+        description: "You must be logged in to add a workout"
+      });
       return;
     }
     
@@ -251,7 +255,10 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
     
     setWorkouts(prev => [...prev, newWorkout]);
-    toast("Workout added successfully!");
+    toast({
+      title: "Success",
+      description: "Workout added successfully!"
+    });
     
     // In a real app, you would save to Supabase here
     // Example:
@@ -265,7 +272,10 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
     //   
     //   if (error) {
     //     console.error('Error saving workout:', error);
-    //     toast("Failed to save workout");
+    //     toast({
+    //       title: "Error",
+    //       description: "Failed to save workout"
+    //     });
     //   }
     // };
     // 
@@ -274,26 +284,38 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const updateWorkout = (workout: Workout) => {
     if (!user) {
-      toast("You must be logged in to update a workout");
+      toast({
+        title: "Error",
+        description: "You must be logged in to update a workout"
+      });
       return;
     }
     
     setWorkouts(prev => 
       prev.map(w => w.id === workout.id ? workout : w)
     );
-    toast("Workout updated!");
+    toast({
+      title: "Success",
+      description: "Workout updated!"
+    });
     
     // In a real app, you would update in Supabase here
   };
 
   const deleteWorkout = (id: string) => {
     if (!user) {
-      toast("You must be logged in to delete a workout");
+      toast({
+        title: "Error",
+        description: "You must be logged in to delete a workout"
+      });
       return;
     }
     
     setWorkouts(prev => prev.filter(w => w.id !== id));
-    toast("Workout deleted!");
+    toast({
+      title: "Success",
+      description: "Workout deleted!"
+    });
     
     // In a real app, you would delete from Supabase here
   };
