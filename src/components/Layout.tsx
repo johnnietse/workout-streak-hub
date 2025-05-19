@@ -1,18 +1,10 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Calendar, ChartBar, Plus, Search, Award, LogOut, Settings } from "lucide-react";
+import { Calendar, ChartBar, Plus, Search, Award, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface NavItemProps {
   to: string;
@@ -63,63 +55,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Mobile header */}
       <div className="lg:hidden bg-white shadow-sm p-4 flex justify-between items-center">
         <div className="font-bold text-xl text-primary">FitTrack</div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                />
-              </svg>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {user && (
-              <>
-                <DropdownMenuLabel>
-                  <div className="text-sm truncate max-w-[200px]">
-                    {user.email}
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-              </>
-            )}
-            <DropdownMenuItem onSelect={() => navigate("/")}>
-              <ChartBar className="mr-2 h-4 w-4" />
-              <span>Dashboard</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => navigate("/calendar")}>
-              <Calendar className="mr-2 h-4 w-4" />
-              <span>Calendar</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => navigate("/search")}>
-              <Search className="mr-2 h-4 w-4" />
-              <span>Search</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => navigate("/achievements")}>
-              <Award className="mr-2 h-4 w-4" />
-              <span>Achievements</span>
-            </DropdownMenuItem>
-            {user && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={signOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign Out</span>
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button variant="outline" size="icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
+          </svg>
+        </Button>
       </div>
 
       {/* Sidebar */}
