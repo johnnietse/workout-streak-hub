@@ -5,9 +5,10 @@ import { AnimatePresence } from 'framer-motion'
 import App from './App.tsx'
 import './index.css'
 
-// Disable strict mode temporarily to reduce double renders which can cause flashing
 createRoot(document.getElementById("root")!).render(
-  <AnimatePresence mode="wait">
-    <App />
-  </AnimatePresence>
+  <React.StrictMode>
+    <AnimatePresence>
+      <App />
+    </AnimatePresence>
+  </React.StrictMode>
 );
