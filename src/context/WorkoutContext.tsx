@@ -1,8 +1,11 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Workout, WorkoutSummary, PersonalRecord, Exercise } from '../types/workout';
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/sonner";
+import { useAuth } from './AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
-// Initial data
+// Initial data (will be filtered by user)
 const initialWorkouts: Workout[] = [
   {
     id: '1',
@@ -54,34 +57,12 @@ const initialWorkouts: Workout[] = [
 ];
 
 const initialSummary: WorkoutSummary = {
-  totalWorkouts: initialWorkouts.length,
-  currentStreak: 2,
-  longestStreak: 2,
-  personalRecords: [
-    {
-      exerciseName: 'Bench Press',
-      value: 135,
-      unit: 'lbs',
-      date: '2025-05-10',
-      type: 'weight'
-    },
-    {
-      exerciseName: 'Squats',
-      value: 185,
-      unit: 'lbs',
-      date: '2025-05-10',
-      type: 'weight'
-    },
-    {
-      exerciseName: 'Running',
-      value: 3.1,
-      unit: 'miles',
-      date: '2025-05-09',
-      type: 'distance'
-    }
-  ],
-  weeklyWorkoutCount: [1, 0, 1, 0, 0, 1, 0],
-  monthlyWorkoutCount: [2, 4, 3, 5, 6, 3, 4, 5, 2, 3, 5, 3]
+  totalWorkouts: 0,
+  currentStreak: 0,
+  longestStreak: 0,
+  personalRecords: [],
+  weeklyWorkoutCount: [0, 0, 0, 0, 0, 0, 0],
+  monthlyWorkoutCount: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 };
 
 interface WorkoutContextType {
@@ -99,8 +80,44 @@ interface WorkoutContextType {
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
 
 export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [workouts, setWorkouts] = useState<Workout[]>(initialWorkouts);
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [summary, setSummary] = useState<WorkoutSummary>(initialSummary);
+  const { user } = useAuth();
+  
+  // Load initial data when user logs in or changes
+  useEffect(() => {
+    if (user) {
+      // For development purposes, generate user-specific data
+      const userWorkouts = initialWorkouts.map(workout => ({
+        ...workout,
+        id: `${workout.id}-${user.id.substring(0, 6)}`,
+      }));
+      
+      setWorkouts(userWorkouts);
+      
+      // In a real app, you would fetch from Supabase here instead
+      // Example:
+      // const fetchUserWorkouts = async () => {
+      //   const { data, error } = await supabase
+      //     .from('workouts')
+      //     .select('*')
+      //     .eq('user_id', user.id);
+      //   
+      //   if (error) {
+      //     console.error('Error fetching workouts:', error);
+      //     return;
+      //   }
+      //   
+      //   setWorkouts(data || []);
+      // };
+      // 
+      // fetchUserWorkouts();
+    } else {
+      // Clear workouts when user logs out
+      setWorkouts([]);
+      setSummary(initialSummary);
+    }
+  }, [user]);
 
   // Calculate stats and summary when workouts change
   useEffect(() => {
@@ -108,6 +125,11 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [workouts]);
 
   const calculateSummary = () => {
+    if (workouts.length === 0) {
+      setSummary(initialSummary);
+      return;
+    }
+    
     // Sort workouts by date (newest first)
     const sortedWorkouts = [...workouts].sort((a, b) => 
       new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -115,7 +137,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     // Calculate current streak
     let currentStreak = 0;
-    let longestStreak = summary.longestStreak;
+    let longestStreak = 0;
     
     // Simple streak calculation (consecutive days with workouts)
     const today = new Date();
@@ -219,6 +241,14 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const addWorkout = (workout: Omit<Workout, 'id'>) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to add a workout"
+      });
+      return;
+    }
+    
     const newWorkout = {
       ...workout,
       id: Math.random().toString(36).substring(2, 9)
@@ -229,9 +259,38 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
       title: "Success",
       description: "Workout added successfully!"
     });
+    
+    // In a real app, you would save to Supabase here
+    // Example:
+    // const saveWorkout = async () => {
+    //   const { error } = await supabase
+    //     .from('workouts')
+    //     .insert({
+    //       ...workout,
+    //       user_id: user.id
+    //     });
+    //   
+    //   if (error) {
+    //     console.error('Error saving workout:', error);
+    //     toast({
+    //       title: "Error",
+    //       description: "Failed to save workout"
+    //     });
+    //   }
+    // };
+    // 
+    // saveWorkout();
   };
 
   const updateWorkout = (workout: Workout) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to update a workout"
+      });
+      return;
+    }
+    
     setWorkouts(prev => 
       prev.map(w => w.id === workout.id ? workout : w)
     );
@@ -239,14 +298,26 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
       title: "Success",
       description: "Workout updated!"
     });
+    
+    // In a real app, you would update in Supabase here
   };
 
   const deleteWorkout = (id: string) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to delete a workout"
+      });
+      return;
+    }
+    
     setWorkouts(prev => prev.filter(w => w.id !== id));
     toast({
       title: "Success",
       description: "Workout deleted!"
     });
+    
+    // In a real app, you would delete from Supabase here
   };
 
   const getWorkout = (id: string) => {
