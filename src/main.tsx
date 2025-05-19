@@ -12,7 +12,7 @@ const root = createRoot(container);
 // Render the app with React.StrictMode and AnimatePresence
 root.render(
   <React.StrictMode>
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
       <App />
     </AnimatePresence>
   </React.StrictMode>
