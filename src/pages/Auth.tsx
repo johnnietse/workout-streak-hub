@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -17,17 +17,13 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, user, isLoading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   
-  // Get the page they were trying to visit
-  const from = location.state?.from || '/';
-  
-  // If already authenticated and not in loading state, redirect to intended page
+  // If already authenticated and not in loading state, redirect to home
   useEffect(() => {
     if (user && !isLoading) {
-      navigate(from, { replace: true });
+      navigate('/', { replace: true });
     }
-  }, [user, isLoading, navigate, from]);
+  }, [user, isLoading, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +32,7 @@ const Auth = () => {
     setLoading(true);
     try {
       await signIn(email, password);
-      // Navigation is handled in the useEffect above
+      // The navigation is handled in the signIn function
     } catch (error) {
       console.error('Error signing in:', error);
     } finally {
@@ -51,7 +47,7 @@ const Auth = () => {
     setLoading(true);
     try {
       await signUp(email, password);
-      // Navigation is handled in the useEffect above
+      // For development, we're auto-signing in after signup
     } catch (error) {
       console.error('Error signing up:', error);
     } finally {
@@ -59,7 +55,7 @@ const Auth = () => {
     }
   };
 
-  // If still checking auth status, show loading
+  // If already logged in, show loading
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
