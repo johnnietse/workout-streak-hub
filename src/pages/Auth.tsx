@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -11,19 +11,26 @@ import { Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { InfoIcon } from 'lucide-react';
 
+interface LocationState {
+  from?: string;
+}
+
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, user, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as LocationState;
+  const from = state?.from || '/';
   
-  // If already authenticated and not in loading state, redirect to home
+  // If already authenticated and not in loading state, redirect to previous page or home
   useEffect(() => {
     if (user && !isLoading) {
-      navigate('/', { replace: true });
+      navigate(from, { replace: true });
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, from]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +39,7 @@ const Auth = () => {
     setLoading(true);
     try {
       await signIn(email, password);
-      // The navigation is handled in the signIn function
+      // Navigation will be handled by the useEffect above
     } catch (error) {
       console.error('Error signing in:', error);
     } finally {
@@ -55,7 +62,7 @@ const Auth = () => {
     }
   };
 
-  // If already logged in, show loading
+  // If loading auth state, show loading spinner
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
