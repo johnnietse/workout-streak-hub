@@ -57,7 +57,6 @@ To deploy your own version:
 ## 📸 Screenshots
 ![Screenshot (2171)](https://github.com/user-attachments/assets/08b326a7-77db-48c6-ab07-930a1beb451c)
 ![Screenshot (2172)](https://github.com/user-attachments/assets/a97969ac-e1ee-4044-9c02-ae3cabb0825f)
-![Screenshot (2160)](https://github.com/user-attachments/assets/4e9f9963-9136-4bc3-ae45-468b5d345cf8)
 ![Screenshot (2161)](https://github.com/user-attachments/assets/d28fa02b-c02b-459d-9e82-3cd805203d7e)
 ![Screenshot (2162)](https://github.com/user-attachments/assets/a1db7d6a-62fd-4cc1-a876-b468a77952bf)
 ![Screenshot (2163)](https://github.com/user-attachments/assets/14a7a2e2-6fd3-455e-a817-6bf76701c763)
