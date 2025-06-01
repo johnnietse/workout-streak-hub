@@ -55,6 +55,8 @@ To deploy your own version:
 3. Optionally connect a custom domain through Project Settings
 
 ## 📸 Screenshots
+![Screenshot (2171)](https://github.com/user-attachments/assets/08b326a7-77db-48c6-ab07-930a1beb451c)
+![Screenshot (2172)](https://github.com/user-attachments/assets/a97969ac-e1ee-4044-9c02-ae3cabb0825f)
 ![Screenshot (2160)](https://github.com/user-attachments/assets/4e9f9963-9136-4bc3-ae45-468b5d345cf8)
 ![Screenshot (2161)](https://github.com/user-attachments/assets/d28fa02b-c02b-459d-9e82-3cd805203d7e)
 ![Screenshot (2162)](https://github.com/user-attachments/assets/a1db7d6a-62fd-4cc1-a876-b468a77952bf)
@@ -66,7 +68,5 @@ To deploy your own version:
 ![Screenshot (2168)](https://github.com/user-attachments/assets/027ad377-03e3-4c83-8629-b1fbc15db514)
 ![Screenshot (2169)](https://github.com/user-attachments/assets/0fc50af0-f3d0-4f53-a9f3-4198ffd1bad2)
 ![Screenshot (2170)](https://github.com/user-attachments/assets/981dd94a-2805-42bf-acb6-4612c84550a5)
-![Screenshot (2171)](https://github.com/user-attachments/assets/08b326a7-77db-48c6-ab07-930a1beb451c)
-![Screenshot (2172)](https://github.com/user-attachments/assets/a97969ac-e1ee-4044-9c02-ae3cabb0825f)
 
 
