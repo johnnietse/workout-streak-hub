@@ -24,10 +24,10 @@ You can contribute or customize this project in several ways:
 2. **Local Development**
    ```bash
    # Clone the repository
-   git clone <YOUR_GIT_URL>
+   git clone https://github.com/johnnietse/workout-streak-hub.git
    
    # Navigate to project
-   cd <YOUR_PROJECT_NAME>
+   cd workout-streak-hub
    
    # Install dependencies
    npm i
