@@ -68,4 +68,9 @@ To deploy your own version:
 ![Screenshot (2169)](https://github.com/user-attachments/assets/0fc50af0-f3d0-4f53-a9f3-4198ffd1bad2)
 ![Screenshot (2170)](https://github.com/user-attachments/assets/981dd94a-2805-42bf-acb6-4612c84550a5)
 
+--
+## For testing the webapp in case if the sign-up verification functionality is not working:
+Please use the following login information:
+- Email: johnnietse994@gmail.com
+- Password: 1234567890
 
