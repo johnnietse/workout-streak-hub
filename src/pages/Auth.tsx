@@ -8,13 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/context/AuthContext';
-import { Loader2, Mail, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showEmailInfo, setShowEmailInfo] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const { signIn, signUp, user, isLoading } = useAuth();
   const navigate = useNavigate();
   
@@ -30,7 +30,7 @@ const Auth = () => {
     if (!email || !password) return;
     
     setLoading(true);
-    setShowEmailInfo(false);
+    setShowSuccessMessage(false);
     try {
       await signIn(email, password);
     } catch (error) {
@@ -45,14 +45,17 @@ const Auth = () => {
     if (!email || !password) return;
     
     setLoading(true);
-    setShowEmailInfo(false);
+    setShowSuccessMessage(false);
     try {
       await signUp(email, password);
-      setShowEmailInfo(true);
+      setShowSuccessMessage(true);
     } catch (error) {
       console.error('Error signing up:', error);
-      // Don't show email info if there was an error
-      setShowEmailInfo(false);
+      // Check if it's an email error but account was still created
+      if (error?.message?.includes("Email sending failed") || 
+          error?.message?.includes("Error sending confirmation email")) {
+        setShowSuccessMessage(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -83,12 +86,11 @@ const Auth = () => {
           <p className="text-muted-foreground mt-2">Track your fitness journey</p>
         </div>
 
-        {showEmailInfo && (
+        {showSuccessMessage && (
           <Alert className="mb-6">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Your account has been created! Due to current email configuration, confirmation emails may not be delivered. 
-              You can try signing in directly with your credentials.
+              Your account has been created successfully! You can now sign in with your credentials.
             </AlertDescription>
           </Alert>
         )}

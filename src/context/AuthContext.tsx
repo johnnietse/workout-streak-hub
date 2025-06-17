@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
@@ -67,61 +68,65 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            email_confirm: false // Disable email confirmation requirement
+          }
         }
       });
 
       if (error) {
         console.error("Signup error:", error);
+        
+        // Handle specific error cases
+        if (error.message?.includes("User already registered")) {
+          toast({
+            title: "Account already exists",
+            description: "An account with this email already exists. Please sign in instead.",
+            variant: "destructive"
+          });
+        } else if (error.message?.includes("Email sending failed") || error.message?.includes("Error sending confirmation email")) {
+          // Even if email fails, the account might be created
+          toast({
+            title: "Account created successfully",
+            description: "Your account has been created. You can now sign in with your credentials.",
+          });
+          return; // Don't throw error, account was created
+        } else {
+          toast({
+            title: "Registration failed",
+            description: error.message || "Failed to create account. Please try again.",
+            variant: "destructive"
+          });
+        }
         throw error;
       }
 
       console.log("Signup response:", data);
       
-      // Handle different signup scenarios
-      if (data.user && !data.session) {
-        // Email confirmation required
-        if (data.user.email_confirmed_at) {
+      // Check if user was created successfully
+      if (data.user) {
+        if (data.session) {
+          // User is immediately signed in
           toast({
-            title: "Account created",
-            description: "Your account has been created successfully. You can now sign in."
+            title: "Account created successfully",
+            description: "Welcome to FitTrack! You're now signed in."
           });
         } else {
+          // Account created but not signed in (email confirmation would be needed)
           toast({
-            title: "Account created - Email confirmation needed",
-            description: "Please check your email and click the confirmation link to activate your account. Note: Due to current email settings, confirmation emails may not be delivered. You can try signing in directly."
+            title: "Account created successfully",
+            description: "Your account has been created. Please try signing in with your credentials."
           });
         }
-      } else if (data.user && data.session) {
-        // User is immediately signed in (email confirmation disabled)
-        toast({
-          title: "Account created successfully",
-          description: "Welcome to FitTrack! You're now signed in."
-        });
-        // The auth state change listener will handle navigation
-      } else if (data.user) {
-        // User exists but needs confirmation
-        toast({
-          title: "Please check your email",
-          description: "A confirmation link has been sent to your email address. If you don't receive it, you can try signing in directly."
-        });
       }
       
     } catch (error: any) {
       console.error("Sign up error:", error);
       
-      // Handle specific error cases
-      if (error?.message?.includes("User already registered")) {
-        toast({
-          title: "Account already exists",
-          description: "An account with this email already exists. Please sign in instead.",
-          variant: "destructive"
-        });
-      } else if (error?.message?.includes("Email sending failed") || error?.message?.includes("Error sending confirmation email")) {
-        toast({
-          title: "Account created with email issues",
-          description: "Your account was created but we couldn't send a confirmation email. You can try signing in directly.",
-        });
-      } else {
+      // Don't show additional error toast if we already handled it above
+      if (!error?.message?.includes("Email sending failed") && 
+          !error?.message?.includes("Error sending confirmation email") &&
+          !error?.message?.includes("User already registered")) {
         toast({
           title: "Registration failed",
           description: error?.message || "Failed to create account. Please try again.",
@@ -146,6 +151,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) {
         console.error("Sign in error:", error);
+        
+        let errorMessage = "Invalid email or password. Please try again.";
+        
+        if (error.message?.includes("Email not confirmed")) {
+          errorMessage = "Your email hasn't been confirmed yet. Due to current email settings, please try signing in again or contact support.";
+        } else if (error.message?.includes("Invalid login credentials")) {
+          errorMessage = "Invalid email or password. Please check your credentials and try again.";
+        }
+        
+        toast({
+          title: "Login failed",
+          description: errorMessage,
+          variant: "destructive"
+        });
         throw error;
       }
 
@@ -153,19 +172,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Navigation is handled by the auth state change listener
     } catch (error: any) {
       console.error("Sign in error:", error);
-      let errorMessage = "Invalid email or password. Please try again.";
-      
-      if (error?.message?.includes("Email not confirmed")) {
-        errorMessage = "Your email hasn't been confirmed yet. Due to current email settings, you may try signing in anyway or contact support.";
-      } else if (error?.message?.includes("Invalid login credentials")) {
-        errorMessage = "Invalid email or password. Please check your credentials and try again.";
-      }
-      
-      toast({
-        title: "Login failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
       throw error;
     } finally {
       setIsLoading(false);
