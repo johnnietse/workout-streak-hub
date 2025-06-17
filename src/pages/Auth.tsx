@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { InfoIcon } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -47,7 +45,7 @@ const Auth = () => {
     setLoading(true);
     try {
       await signUp(email, password);
-      // For development, we're auto-signing in after signup
+      // User will receive email confirmation if verification is enabled
     } catch (error) {
       console.error('Error signing up:', error);
     } finally {
@@ -79,13 +77,6 @@ const Auth = () => {
           </h1>
           <p className="text-muted-foreground mt-2">Track your fitness journey</p>
         </div>
-
-        <Alert className="bg-blue-50 border-blue-200 mb-6">
-          <InfoIcon className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-800">
-            This demo app has email verification disabled. You can sign up and sign in immediately.
-          </AlertDescription>
-        </Alert>
 
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
@@ -171,6 +162,7 @@ const Auth = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        minLength={6}
                       />
                     </div>
                     <Button disabled={loading} className="w-full" type="submit">

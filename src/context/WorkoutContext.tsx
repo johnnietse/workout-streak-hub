@@ -1,88 +1,8 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Workout, WorkoutSummary, PersonalRecord, Exercise } from '../types/workout';
-import { toast } from "@/components/ui/use-toast";
-
-// Initial data
-const initialWorkouts: Workout[] = [
-  {
-    id: '1',
-    date: '2025-05-10',
-    exercises: [
-      {
-        exerciseType: 'Strength',
-        name: 'Bench Press',
-        sets: 3,
-        reps: 10,
-        weight: 135,
-        notes: 'Felt strong today'
-      },
-      {
-        exerciseType: 'Strength',
-        name: 'Squats',
-        sets: 3,
-        reps: 12,
-        weight: 185,
-        notes: 'Increased weight from last session'
-      }
-    ]
-  },
-  {
-    id: '2',
-    date: '2025-05-09',
-    exercises: [
-      {
-        exerciseType: 'Cardio',
-        name: 'Running',
-        durationMinutes: 25,
-        distance: 3.1,
-        notes: 'Morning run'
-      }
-    ]
-  },
-  {
-    id: '3',
-    date: '2025-05-07',
-    exercises: [
-      {
-        exerciseType: 'Yoga',
-        name: 'Vinyasa Flow',
-        durationMinutes: 45,
-        notes: 'Evening session for recovery'
-      }
-    ]
-  }
-];
-
-const initialSummary: WorkoutSummary = {
-  totalWorkouts: initialWorkouts.length,
-  currentStreak: 2,
-  longestStreak: 2,
-  personalRecords: [
-    {
-      exerciseName: 'Bench Press',
-      value: 135,
-      unit: 'lbs',
-      date: '2025-05-10',
-      type: 'weight'
-    },
-    {
-      exerciseName: 'Squats',
-      value: 185,
-      unit: 'lbs',
-      date: '2025-05-10',
-      type: 'weight'
-    },
-    {
-      exerciseName: 'Running',
-      value: 3.1,
-      unit: 'miles',
-      date: '2025-05-09',
-      type: 'distance'
-    }
-  ],
-  weeklyWorkoutCount: [1, 0, 1, 0, 0, 1, 0],
-  monthlyWorkoutCount: [2, 4, 3, 5, 6, 3, 4, 5, 2, 3, 5, 3]
-};
+import { Workout, WorkoutSummary, PersonalRecord } from '../types/workout';
+import { useWorkoutData } from '../hooks/useWorkoutData';
+import { useAuth } from './AuthContext';
 
 interface WorkoutContextType {
   workouts: Workout[];
@@ -94,18 +14,29 @@ interface WorkoutContextType {
   getWorkoutsByDateRange: (start: string, end: string) => Workout[];
   getWorkoutsByType: (type: string) => Workout[];
   searchWorkouts: (query: string) => Workout[];
+  isLoading: boolean;
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
 
 export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [workouts, setWorkouts] = useState<Workout[]>(initialWorkouts);
-  const [summary, setSummary] = useState<WorkoutSummary>(initialSummary);
+  const { user } = useAuth();
+  const { workouts, personalRecords, isLoading, addWorkout: addWorkoutDB, deleteWorkout: deleteWorkoutDB } = useWorkoutData();
+  const [summary, setSummary] = useState<WorkoutSummary>({
+    totalWorkouts: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    personalRecords: [],
+    weeklyWorkoutCount: [0, 0, 0, 0, 0, 0, 0],
+    monthlyWorkoutCount: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  });
 
   // Calculate stats and summary when workouts change
   useEffect(() => {
-    calculateSummary();
-  }, [workouts]);
+    if (user) {
+      calculateSummary();
+    }
+  }, [workouts, personalRecords, user]);
 
   const calculateSummary = () => {
     // Sort workouts by date (newest first)
@@ -115,7 +46,7 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     // Calculate current streak
     let currentStreak = 0;
-    let longestStreak = summary.longestStreak;
+    let longestStreak = 0;
     
     // Simple streak calculation (consecutive days with workouts)
     const today = new Date();
@@ -133,56 +64,8 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
     }
     
+    // Calculate longest streak (simplified version)
     longestStreak = Math.max(currentStreak, longestStreak);
-    
-    // Find personal records
-    const personalRecords: PersonalRecord[] = [];
-    
-    workouts.forEach(workout => {
-      workout.exercises.forEach(exercise => {
-        if (exercise.exerciseType === 'Strength') {
-          // Check if this is a new PR for weight
-          const existingPR = personalRecords.find(
-            pr => pr.exerciseName === exercise.name && pr.type === 'weight'
-          );
-          
-          if (!existingPR || exercise.weight > existingPR.value) {
-            if (existingPR) {
-              existingPR.value = exercise.weight;
-              existingPR.date = workout.date;
-            } else {
-              personalRecords.push({
-                exerciseName: exercise.name,
-                value: exercise.weight,
-                unit: 'lbs',
-                date: workout.date,
-                type: 'weight'
-              });
-            }
-          }
-        } else if (exercise.exerciseType === 'Cardio' && exercise.distance) {
-          // Check if this is a new PR for distance
-          const existingPR = personalRecords.find(
-            pr => pr.exerciseName === exercise.name && pr.type === 'distance'
-          );
-          
-          if (!existingPR || exercise.distance > existingPR.value) {
-            if (existingPR) {
-              existingPR.value = exercise.distance;
-              existingPR.date = workout.date;
-            } else {
-              personalRecords.push({
-                exerciseName: exercise.name,
-                value: exercise.distance,
-                unit: 'miles',
-                date: workout.date,
-                type: 'distance'
-              });
-            }
-          }
-        }
-      });
-    });
     
     // Weekly workout count (last 7 days)
     const weeklyWorkoutCount = Array(7).fill(0);
@@ -219,34 +102,16 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const addWorkout = (workout: Omit<Workout, 'id'>) => {
-    const newWorkout = {
-      ...workout,
-      id: Math.random().toString(36).substring(2, 9)
-    };
-    
-    setWorkouts(prev => [...prev, newWorkout]);
-    toast({
-      title: "Success",
-      description: "Workout added successfully!"
-    });
+    addWorkoutDB(workout);
   };
 
   const updateWorkout = (workout: Workout) => {
-    setWorkouts(prev => 
-      prev.map(w => w.id === workout.id ? workout : w)
-    );
-    toast({
-      title: "Success",
-      description: "Workout updated!"
-    });
+    // TODO: Implement update in database
+    console.log('Update workout not yet implemented:', workout);
   };
 
   const deleteWorkout = (id: string) => {
-    setWorkouts(prev => prev.filter(w => w.id !== id));
-    toast({
-      title: "Success",
-      description: "Workout deleted!"
-    });
+    deleteWorkoutDB(id);
   };
 
   const getWorkout = (id: string) => {
@@ -294,7 +159,8 @@ export const WorkoutProvider: React.FC<{ children: React.ReactNode }> = ({ child
         getWorkout,
         getWorkoutsByDateRange,
         getWorkoutsByType,
-        searchWorkouts
+        searchWorkouts,
+        isLoading
       }}
     >
       {children}

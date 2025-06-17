@@ -77,13 +77,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       console.log("Sign up response:", data);
       
-      toast("Account created", {
-        description: "For this demo app, email verification is disabled. You can sign in immediately."
-      });
-
-      // Automatically sign in after signup for development purposes
-      // This skips email verification flow
-      await signIn(email, password);
+      if (data.user && !data.session) {
+        toast("Check your email", {
+          description: "Please check your email for a confirmation link to complete your registration."
+        });
+      } else {
+        toast("Account created successfully", {
+          description: "Welcome to FitTrack! You can now start tracking your workouts."
+        });
+      }
       
     } catch (error: any) {
       toast("Registration failed", {
