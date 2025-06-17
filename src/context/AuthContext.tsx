@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
@@ -33,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (event === 'SIGNED_IN') {
           toast({
-            title: "Welcome back!",
+            title: "Welcome!",
             description: "You have successfully signed in."
           });
           navigate('/', { replace: true });
@@ -61,6 +60,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      console.log("Attempting signup for:", email);
+      
       const { error, data } = await supabase.auth.signUp({
         email,
         password,
@@ -70,32 +71,63 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
+        console.error("Signup error:", error);
         throw error;
       }
 
-      console.log("Sign up response:", data);
+      console.log("Signup response:", data);
       
-      // Check if user needs email confirmation
+      // Handle different signup scenarios
       if (data.user && !data.session) {
-        toast({
-          title: "Check your email",
-          description: "We've sent you a confirmation link. Please check your email and click the link to verify your account."
-        });
+        // Email confirmation required
+        if (data.user.email_confirmed_at) {
+          toast({
+            title: "Account created",
+            description: "Your account has been created successfully. You can now sign in."
+          });
+        } else {
+          toast({
+            title: "Account created - Email confirmation needed",
+            description: "Please check your email and click the confirmation link to activate your account. Note: Due to current email settings, confirmation emails may not be delivered. You can try signing in directly."
+          });
+        }
       } else if (data.user && data.session) {
         // User is immediately signed in (email confirmation disabled)
         toast({
           title: "Account created successfully",
-          description: "Welcome to FitTrack! You can now start tracking your workouts."
+          description: "Welcome to FitTrack! You're now signed in."
+        });
+        // The auth state change listener will handle navigation
+      } else if (data.user) {
+        // User exists but needs confirmation
+        toast({
+          title: "Please check your email",
+          description: "A confirmation link has been sent to your email address. If you don't receive it, you can try signing in directly."
         });
       }
       
     } catch (error: any) {
       console.error("Sign up error:", error);
-      toast({
-        title: "Registration failed",
-        description: error?.message || "Failed to create account. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Handle specific error cases
+      if (error?.message?.includes("User already registered")) {
+        toast({
+          title: "Account already exists",
+          description: "An account with this email already exists. Please sign in instead.",
+          variant: "destructive"
+        });
+      } else if (error?.message?.includes("Email sending failed") || error?.message?.includes("Error sending confirmation email")) {
+        toast({
+          title: "Account created with email issues",
+          description: "Your account was created but we couldn't send a confirmation email. You can try signing in directly.",
+        });
+      } else {
+        toast({
+          title: "Registration failed",
+          description: error?.message || "Failed to create account. Please try again.",
+          variant: "destructive"
+        });
+      }
       throw error;
     } finally {
       setIsLoading(false);
@@ -105,12 +137,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      console.log("Attempting signin for:", email);
+      
       const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error("Sign in error:", error);
         throw error;
       }
 
@@ -121,7 +156,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       let errorMessage = "Invalid email or password. Please try again.";
       
       if (error?.message?.includes("Email not confirmed")) {
-        errorMessage = "Please check your email and click the confirmation link before signing in.";
+        errorMessage = "Your email hasn't been confirmed yet. Due to current email settings, you may try signing in anyway or contact support.";
+      } else if (error?.message?.includes("Invalid login credentials")) {
+        errorMessage = "Invalid email or password. Please check your credentials and try again.";
       }
       
       toast({

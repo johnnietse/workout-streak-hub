@@ -8,13 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/context/AuthContext';
-import { Loader2, Mail } from 'lucide-react';
+import { Loader2, Mail, AlertCircle } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showEmailSent, setShowEmailSent] = useState(false);
+  const [showEmailInfo, setShowEmailInfo] = useState(false);
   const { signIn, signUp, user, isLoading } = useAuth();
   const navigate = useNavigate();
   
@@ -30,7 +30,7 @@ const Auth = () => {
     if (!email || !password) return;
     
     setLoading(true);
-    setShowEmailSent(false);
+    setShowEmailInfo(false);
     try {
       await signIn(email, password);
     } catch (error) {
@@ -45,12 +45,14 @@ const Auth = () => {
     if (!email || !password) return;
     
     setLoading(true);
-    setShowEmailSent(false);
+    setShowEmailInfo(false);
     try {
       await signUp(email, password);
-      setShowEmailSent(true);
+      setShowEmailInfo(true);
     } catch (error) {
       console.error('Error signing up:', error);
+      // Don't show email info if there was an error
+      setShowEmailInfo(false);
     } finally {
       setLoading(false);
     }
@@ -81,12 +83,12 @@ const Auth = () => {
           <p className="text-muted-foreground mt-2">Track your fitness journey</p>
         </div>
 
-        {showEmailSent && (
+        {showEmailInfo && (
           <Alert className="mb-6">
-            <Mail className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Check your email for a confirmation link to complete your registration. 
-              You may need to check your spam folder.
+              Your account has been created! Due to current email configuration, confirmation emails may not be delivered. 
+              You can try signing in directly with your credentials.
             </AlertDescription>
           </Alert>
         )}
