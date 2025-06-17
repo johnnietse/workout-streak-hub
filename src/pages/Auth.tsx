@@ -6,13 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/context/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showEmailSent, setShowEmailSent] = useState(false);
   const { signIn, signUp, user, isLoading } = useAuth();
   const navigate = useNavigate();
   
@@ -28,9 +30,9 @@ const Auth = () => {
     if (!email || !password) return;
     
     setLoading(true);
+    setShowEmailSent(false);
     try {
       await signIn(email, password);
-      // The navigation is handled in the signIn function
     } catch (error) {
       console.error('Error signing in:', error);
     } finally {
@@ -43,9 +45,10 @@ const Auth = () => {
     if (!email || !password) return;
     
     setLoading(true);
+    setShowEmailSent(false);
     try {
       await signUp(email, password);
-      // User will receive email confirmation if verification is enabled
+      setShowEmailSent(true);
     } catch (error) {
       console.error('Error signing up:', error);
     } finally {
@@ -77,6 +80,16 @@ const Auth = () => {
           </h1>
           <p className="text-muted-foreground mt-2">Track your fitness journey</p>
         </div>
+
+        {showEmailSent && (
+          <Alert className="mb-6">
+            <Mail className="h-4 w-4" />
+            <AlertDescription>
+              Check your email for a confirmation link to complete your registration. 
+              You may need to check your spam folder.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">

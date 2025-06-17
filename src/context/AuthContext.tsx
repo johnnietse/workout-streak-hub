@@ -1,8 +1,9 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/components/ui/use-toast";
 
 type AuthContextType = {
   session: Session | null;
@@ -27,24 +28,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (event, currentSession) => {
         console.log("Auth state changed:", event, currentSession?.user?.email);
         
-        // Keep track of previous state to prevent unnecessary rerenders
-        setSession(prevSession => {
-          if (prevSession?.user?.id === currentSession?.user?.id) {
-            return prevSession;
-          }
-          return currentSession;
-        });
-        
+        setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
         if (event === 'SIGNED_IN') {
-          toast("Welcome back!", {
+          toast({
+            title: "Welcome back!",
             description: "You have successfully signed in."
           });
+          navigate('/', { replace: true });
         } else if (event === 'SIGNED_OUT') {
-          toast("Signed out", {
+          toast({
+            title: "Signed out",
             description: "You have been signed out successfully."
           });
+          navigate('/auth', { replace: true });
         }
       }
     );
@@ -58,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const signUp = async (email: string, password: string) => {
     try {
@@ -67,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: `${window.location.origin}/`,
         }
       });
 
@@ -77,19 +75,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       console.log("Sign up response:", data);
       
+      // Check if user needs email confirmation
       if (data.user && !data.session) {
-        toast("Check your email", {
-          description: "Please check your email for a confirmation link to complete your registration."
+        toast({
+          title: "Check your email",
+          description: "We've sent you a confirmation link. Please check your email and click the link to verify your account."
         });
-      } else {
-        toast("Account created successfully", {
+      } else if (data.user && data.session) {
+        // User is immediately signed in (email confirmation disabled)
+        toast({
+          title: "Account created successfully",
           description: "Welcome to FitTrack! You can now start tracking your workouts."
         });
       }
       
     } catch (error: any) {
-      toast("Registration failed", {
-        description: error?.message || "Failed to create account. Please try again."
+      console.error("Sign up error:", error);
+      toast({
+        title: "Registration failed",
+        description: error?.message || "Failed to create account. Please try again.",
+        variant: "destructive"
       });
       throw error;
     } finally {
@@ -110,10 +115,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       console.log("Sign in success:", data.user?.email);
-      navigate('/', { replace: true });
+      // Navigation is handled by the auth state change listener
     } catch (error: any) {
-      toast("Login failed", {
-        description: error?.message || "Invalid email or password. Please try again."
+      console.error("Sign in error:", error);
+      let errorMessage = "Invalid email or password. Please try again.";
+      
+      if (error?.message?.includes("Email not confirmed")) {
+        errorMessage = "Please check your email and click the confirmation link before signing in.";
+      }
+      
+      toast({
+        title: "Login failed",
+        description: errorMessage,
+        variant: "destructive"
       });
       throw error;
     } finally {
@@ -125,10 +139,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsLoading(true);
       await supabase.auth.signOut();
-      navigate('/auth', { replace: true });
+      // Navigation is handled by the auth state change listener
     } catch (error: any) {
-      toast("Sign out failed", {
-        description: error?.message || "Failed to sign out. Please try again."
+      console.error("Sign out error:", error);
+      toast({
+        title: "Sign out failed",
+        description: error?.message || "Failed to sign out. Please try again.",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
