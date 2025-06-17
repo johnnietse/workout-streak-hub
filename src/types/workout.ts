@@ -38,7 +38,7 @@ export interface PersonalRecord {
   value: number;
   unit: string;
   date: string;
-  type: 'weight' | 'reps' | 'duration' | 'distance';
+  type: 'weight' | 'distance' | 'time';
 }
 
 export interface WorkoutSummary {
